@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="306" pageHeight="792" columnWidth="266" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="76e3037d-5d40-4c82-b475-701c1992bdc7">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="174"/>
+	<parameter name="p_or_number" class="java.lang.String"/>
+	<parameter name="p_mode" class="java.lang.String"/>
+	<parameter name="p_cheque" class="java.lang.String"/>
+	<parameter name="p_bank" class="java.lang.String"/>
+	<parameter name="p_payee_name" class="java.lang.String"/>
+	<parameter name="p_payee_address" class="java.lang.String"/>
+	<parameter name="p_date" class="java.lang.String"/>
+	<parameter name="p_excess_payment" class="java.lang.Double"/>
+	<queryString>
+		<![CDATA[SELECT
+     concat('JO',LPAD(ABS(jo.id),8,'0')) AS refId,
+     a.`description` AS description,
+     truncate(od.`cost`,2) as total_cost,
+     truncate(od.`amount`,2) as amount,
+     truncate(od.`excess`,2) as excess_pay
+FROM
+	 `official_receipt` orcpt,
+     `job_orders` jo,
+     `job_order_type` jot,
+     `amenity` a,
+     `amenities_request` ar,
+     `official_receipt_details` od,
+     `official_receipt_header` oh
+WHERE
+	 orcpt.or_number = $P{p_or_number}
+     and oh.or_number = orcpt.or_number
+     and od.header_id = oh.id
+     and orcpt.job_order_id = od.ref_num
+     and orcpt.job_order_id = jo.id
+     and jo.order_type_id = jot.id
+     and jo.request_id = ar.id
+     and a.id = ar.amenity_id
+     and jot.id = '1'
+UNION
+SELECT
+     concat('JO',LPAD(ABS(jo.id),8,'0')) AS refId,
+     s.`description` AS description,
+     truncate(od.`cost`,2) as total_cost,
+     truncate(od.`amount`,2) as amount,
+     truncate(od.`excess`,2) as excess_pay
+FROM
+     `official_receipt` orcpt,
+     `job_orders` jo,
+     `job_order_type` jot,
+     `service` s,
+     `service_request` sr,
+     `official_receipt_details` od,
+     `official_receipt_header` oh
+WHERE
+     orcpt.or_number = $P{p_or_number}
+     and oh.or_number = orcpt.or_number
+     and od.header_id = oh.id
+     and orcpt.job_order_id = od.ref_num
+     and orcpt.job_order_id = jo.id
+     and jo.order_type_id = jot.id
+     and jo.request_id = sr.id
+     and s.id = sr.service_id
+     and jot.id = '2'
+UNION
+SELECT
+     concat('JO',LPAD(ABS(jo.id),8,'0')) AS refId,
+     wr.remarks AS description,
+     truncate(od.`cost`,2) as total_cost,
+     truncate(od.`amount`,2) as amount,
+     truncate(od.`excess`,2) as excess_pay
+FROM
+     `official_receipt` orcpt,
+     `job_orders` jo,
+     `job_order_type` jot,
+     `water_reading` wr,
+     `official_receipt_details` od,
+     `official_receipt_header` oh
+WHERE
+     orcpt.or_number = $P{p_or_number}
+     and oh.or_number = orcpt.or_number
+     and od.header_id = oh.id
+     and orcpt.job_order_id = od.ref_num
+     and orcpt.job_order_id = jo.id
+     and jo.order_type_id = jot.id
+     and jo.request_id = wr.id
+     and jot.id = '3'
+UNION
+SELECT
+     concat('JO',LPAD(ABS(jo.id),8,'0')) AS refId,
+     ad.remarks AS description,
+     truncate(od.`cost`,2) as total_cost,
+     truncate(od.`amount`,2) as amount,
+     truncate(od.`excess`,2) as excess_pay
+FROM
+     `official_receipt` orcpt,
+     `job_orders` jo,
+     `job_order_type` jot,
+     `association_due` ad,
+     `official_receipt_details` od,
+     `official_receipt_header` oh
+WHERE
+     orcpt.or_number = $P{p_or_number}
+     and oh.or_number = orcpt.or_number
+     and od.header_id = oh.id
+     and orcpt.job_order_id = od.ref_num
+     and orcpt.job_order_id = jo.id
+     and jo.order_type_id = jot.id
+     and jo.request_id = ad.id
+     and jot.id = '4'
+UNION
+SELECT
+     concat('JO',LPAD(ABS(jo.id),8,'0')) AS refId,
+     adj.remarks AS description,
+     truncate(od.`cost`,2) as total_cost,
+     truncate(od.`amount`,2) as amount,
+     truncate(od.`excess`,2) as excess_pay
+FROM
+     `official_receipt` orcpt,
+     `job_orders` jo,
+     `job_order_type` jot,
+     `adjustment` adj,
+     `official_receipt_details` od,
+     `official_receipt_header` oh
+WHERE
+     orcpt.or_number = $P{p_or_number}
+     and oh.or_number = orcpt.or_number
+     and od.header_id = oh.id
+     and orcpt.job_order_id = od.ref_num
+     and orcpt.job_order_id = jo.id
+     and jo.order_type_id = jot.id
+     and jo.request_id = adj.id
+     and jot.id = '6'
+]]>
+	</queryString>
+	<field name="refId" class="java.lang.String"/>
+	<field name="description" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="amount" class="java.lang.Double">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="total_cost" class="java.lang.String"/>
+	<variable name="variable1" class="java.lang.String"/>
+	<variable name="amount_1" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="bc41cab9-a7ea-4e6c-80ca-4653e59bc119" x="155" y="2" width="45" height="18"/>
+				<textElement>
+					<font fontName="Arial" isStrikeThrough="false"/>
+				</textElement>
+				<text><![CDATA[DATE :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="0b4fc4dd-0f43-45e3-b222-58cef4826fc1" x="68" y="0" width="87" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{p_or_number}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="4aefebd4-3901-4374-8429-9c7054279af3" x="200" y="2" width="62" height="17"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{p_date}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="107" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="4f8b50fd-c963-4296-8a2d-e76465b53343" x="2" y="2" width="74" height="20"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<text><![CDATA[PAYEE NAME :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="4f8b50fd-c963-4296-8a2d-e76465b53343" x="1" y="22" width="74" height="20"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<text><![CDATA[ADDRESS:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="4f8b50fd-c963-4296-8a2d-e76465b53343" x="1" y="42" width="86" height="20"/>
+				<textElement>
+					<font fontName="Arial" isStrikeThrough="false"/>
+				</textElement>
+				<text><![CDATA[PAYMENT TYPE :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="c5342666-64b3-4519-9781-53b98995e7ac" x="87" y="42" width="178" height="20"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{p_mode}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="4f8b50fd-c963-4296-8a2d-e76465b53343" x="1" y="62" width="65" height="20">
+					<printWhenExpression><![CDATA[Boolean.valueOf($P{p_mode}.startsWith("Cheque"))]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial" isBold="false"/>
+				</textElement>
+				<text><![CDATA[BANK NAME :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="5c2f8ce0-49ba-45b1-96c1-a10e7c6c8fea" x="87" y="62" width="178" height="20">
+					<printWhenExpression><![CDATA[Boolean.valueOf($P{p_mode}.startsWith("Cheque"))]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{p_bank}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="4f8b50fd-c963-4296-8a2d-e76465b53343" x="2" y="82" width="111" height="20">
+					<printWhenExpression><![CDATA[Boolean.valueOf($P{p_mode}.startsWith("Cheque"))]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<text><![CDATA[CHECK NUMBER :]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="31aac08f-5b86-4c3c-9812-b7ea7e6bac91" x="99" y="82" width="127" height="20">
+					<printWhenExpression><![CDATA[Boolean.valueOf($P{p_mode}.startsWith("Cheque"))]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{p_cheque}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0bec7f66-93de-463f-b2cb-437417468ffe" x="87" y="2" width="178" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{p_payee_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="2ad9aa7f-a342-4ef0-ab26-33deb3534828" x="87" y="22" width="178" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{p_payee_address}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="22" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="bc41cab9-a7ea-4e6c-80ca-4653e59bc119" x="0" y="-128" width="75" height="20"/>
+				<textElement>
+					<font fontName="Arial" isStrikeThrough="false"/>
+				</textElement>
+				<text><![CDATA[OR NUMBER :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="8148bc5f-9afb-41b4-8647-acd5ebed3389" x="47" y="0" width="108" height="20"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<text><![CDATA[Description	]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="7655127a-d859-4860-8142-6b17a10856fd" x="1" y="1" width="45" height="19"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<text><![CDATA[Ref No.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="fa6be6e6-abcf-4339-9cb6-503249c1a6a3" x="200" y="1" width="66" height="20"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<text><![CDATA[Paid Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="d79dbc70-9521-47a1-b47c-1d6a353403f5" x="154" y="1" width="46" height="20"/>
+				<textElement/>
+				<text><![CDATA[Cost ]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="17" splitType="Stretch">
+			<textField pattern="#,##0.00;(-#,##0.00)">
+				<reportElement uuid="d97ad710-047d-4ec3-9bae-94bf415c0e53" x="210" y="0" width="55" height="16"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{amount}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="3451fdf0-bfb0-49dd-9abc-a6d9fbebc365" x="47" y="0" width="107" height="16"/>
+				<textElement>
+					<font fontName="Arial" size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="8479c67e-1a3d-4493-94a8-a215ab71fdba" x="1" y="0" width="45" height="16"/>
+				<textElement>
+					<font fontName="Arial" size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{refId}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement uuid="a242f144-b91a-4130-9259-bc91991ebaaa" x="154" y="0" width="46" height="16"/>
+				<textElement>
+					<font fontName="Arial" size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total_cost}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="74">
+			<textField pattern="#,##0.00;(#,##0.00-)">
+				<reportElement uuid="f504bac8-3e2c-4490-b32e-dc5778191533" x="210" y="20" width="56" height="17"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{amount_1}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="4f8b50fd-c963-4296-8a2d-e76465b53343" x="168" y="20" width="32" height="17"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total :	]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="4f8b50fd-c963-4296-8a2d-e76465b53343" x="47" y="57" width="53" height="17"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<text><![CDATA[Verified By]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="c73fdd46-d5ac-4553-9ed1-e4e6419cc04a" x="12" y="56" width="123" height="1"/>
+			</line>
+			<textField pattern="MM/dd/yyyy">
+				<reportElement uuid="c3a32c31-b555-45da-a411-8c2f8a324d9e" x="227" y="57" width="35" height="17"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="77eb6168-9098-4015-b7f2-851be441edf3" x="200" y="57" width="27" height="17"/>
+				<textElement>
+					<font fontName="SansSerif" size="5"/>
+				</textElement>
+				<text><![CDATA[Generated:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="cc05ef46-bfc7-42c0-9215-a3ca78afdc0f" isPrintRepeatedValues="false" x="171" y="1" width="56" height="19">
+					<printWhenExpression><![CDATA[!$P{p_excess_payment}.equals( 0 )]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial" size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Excess Payment :]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;(-#,##0.00)">
+				<reportElement uuid="69f6035c-32d5-47ea-9ca2-b09f14dc8bb9" isPrintRepeatedValues="false" x="227" y="0" width="39" height="20">
+					<printWhenExpression><![CDATA[!$P{p_excess_payment}.equals( 0 )]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{p_excess_payment}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

@@ -1,0 +1,164 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.homeportal.service;
+
+import com.homeportal.bean.ServiceBean;
+import com.homeportal.dao.impl.ServiceRequestDaoImpl;
+import com.homeportal.model.Service_Request;
+import com.homeportal.util.ServiceRequestUtil;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ *
+ * @author PSP36488
+ */
+@Service
+public class ServiceRequestService {
+
+    private ServiceRequestDaoImpl serviceRequestDaoImpl;
+    private ServiceRequestUtil serviceRequestUtil;
+
+    /**
+     * Get all contacts
+     *
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public List<ServiceBean> getServiceRequestList(int id) {
+        return serviceRequestDaoImpl.getService_Requests(id);
+    }
+    
+     /**
+     * Get all contacts
+     *
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public List<ServiceBean> getServiceRequestList() {
+        return serviceRequestDaoImpl.getService_Requests();
+    }
+
+    /**
+     * Get all contacts
+     *
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public List<ServiceBean> getServiceRequestList(int userId, String status, String requestedDate, int serviceId) {
+        return serviceRequestDaoImpl.getService_RequestsByAdmin(userId, status, requestedDate, serviceId);
+    }
+    
+    @Transactional
+    public Double updatePaidAmount(Double paidAmount, int requestId, double amount) {
+            return serviceRequestDaoImpl.updatePaidAmount(paidAmount, requestId, amount);
+     }
+    
+    @Transactional
+    public Double updatePaidAmountWaterReading(Double paidAmount, int requestId, double amount) {
+            return serviceRequestDaoImpl.updatePaidAmountWaterReading(paidAmount, requestId, amount);
+     }
+
+    /**
+	 * Create new Owner/Owners
+	 * @param data - json data from request
+	 * @return created contacts
+	 */
+	@Transactional
+	public List<Service_Request> create(Object data){
+        List<Service_Request> newAr = new ArrayList<Service_Request>();
+		List<Service_Request> list = serviceRequestUtil.getServiceRequestFromRequest(data);
+		for (Service_Request ar : list){
+			newAr.add(serviceRequestDaoImpl.saveService_Requests(ar));
+		}
+
+		return newAr;
+	}
+
+        /**
+	 * Update contact/contacts
+	 * @param data - json data from request
+	 * @return updated contacts
+	 */
+	@Transactional
+	public List<Service_Request> update(Object data){
+
+		List<Service_Request> returnAr = new ArrayList<Service_Request>();
+		List<Service_Request> updatedAr = serviceRequestUtil.getServiceRequestFromRequest(data);
+		for (Service_Request ar : updatedAr){
+			returnAr.add(serviceRequestDaoImpl.updateService_Request(ar));
+		}
+		return returnAr;
+	}
+
+        /**
+	 * Update contact/contacts
+	 * @param data - json data from request
+	 * @return updated contacts
+	 */
+	@Transactional
+	public List<Service_Request> updateViaPortal(Object data,String uom){
+
+		List<Service_Request> returnAr = new ArrayList<Service_Request>();
+		List<Service_Request> updatedAr = serviceRequestUtil.getServiceRequestFromRequest(data);
+		for (Service_Request ar : updatedAr){
+			returnAr.add(serviceRequestDaoImpl.updateService_RequestViaPortal(ar,uom));
+		}
+		return returnAr;
+	}
+
+        /**
+	 * Update contact/contacts
+	 * @param data - json data from request
+	 * @return updated contacts
+	 */
+	@Transactional
+	public List<Service_Request> updateViaAdmin(Object data){
+
+		List<Service_Request> returnAr = new ArrayList<Service_Request>();
+		List<Service_Request> updatedAr = serviceRequestUtil.getServiceRequestFromRequest(data);
+		for (Service_Request ar : updatedAr){
+			returnAr.add(serviceRequestDaoImpl.updateService_RequestViaAdmin(ar));
+		}
+		return returnAr;
+	}
+        
+         /**
+	 * Update contact/contacts
+	 * @param data - json data from request
+	 * @return updated contacts
+	 */
+	//@Transactional
+	public String getUom(Object data){
+
+		String  uom = "";
+		List<ServiceBean> updatedAr = serviceRequestUtil.getServiceBeanFromRequest(data);
+		          for (ServiceBean ab: updatedAr) {
+                          uom = ab.getUom();
+                           }
+		return uom;
+	}
+
+    /**
+     * @param serviceRequestDaoImpl the serviceRequestDaoImpl to set
+     */
+    @Autowired
+    public void setServiceRequestDaoImpl(ServiceRequestDaoImpl serviceRequestDaoImpl) {
+        this.serviceRequestDaoImpl = serviceRequestDaoImpl;
+    }
+
+    /**
+     * @param serviceRequestUtil the serviceRequestUtil to set
+     */
+    @Autowired
+    public void setServiceRequestUtil(ServiceRequestUtil serviceRequestUtil) {
+        this.serviceRequestUtil = serviceRequestUtil;
+    }
+}
+

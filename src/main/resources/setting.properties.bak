@@ -1,0 +1,58 @@
+## specify the location of jasper location
+jasperFilesPath=/var/lib/openshift/fb4e5c8f40154db2bce677a35d945c49/app-root/runtime/repo/src/main/webapp/WEB-INF/reports/
+
+## specify the name of jasper file for Billing Statement
+jasperName = viewPortalStatement.jasper
+
+## specify the name of jasper file for Billing Statement
+collectiblesName = collectiblesReport.jasper
+
+## this is the jasper file used by AdminBillController when viewing bills
+billingPaymentJasperFilename = old_report1.jasper
+
+## this is the jasper file used by AdminBillController when viewing bills if admin
+adminORJasperFilename = adminOr.jasper
+
+## TEMPORARY location where the Billing Payment pdf file will be created inside the server
+reportLocation = /var/lib/openshift/fb4e5c8f40154db2bce677a35d945c49/app-root/data/billingStatementPDFDir/
+
+## TEMPORARY url where pdf files can be accessed during Billing Payment
+reportUrl=https://homeportal-ferndale.rhcloud.com/homeportal/pdf/
+
+## specify the location where the Billing Payment pdf file will be created inside the server
+## reportLocation = C:/apps/tomcat/webapps/pdf
+
+## specify the url of where user can access the pdf file
+## reportUrl = http://localhost:8080/pdf/
+
+## TEMPORARY location where the Billing Statement pdf generated during Billing Statement will be created inside the server
+reportLocationOr = /pdfOr
+
+## TEMPORARY url where the user can pdf file during Billing Statement
+reportUrlOr = https://homeportal-ferndale.rhcloud.com/homeportal/pdfOr/
+
+## specify the location where the Billing Statement pdf file will be created inside the server
+##reportLocationOr = C:/apps/tomcat/webapps/pdfOr
+
+## specify the url of where you can access the pdf file
+## reportUrlOr = http://localhost:8080/homeportal/pdfOr/
+
+
+## Connection Constants ###
+mysqlJDBCDriver=com.mysql.jdbc.Driver
+connectionURL=jdbc:mysql://127.11.67.129:3306/homeportal?user=admin&password=zdcGuls1uca9
+#connectionURL=jdbc:mysql://localhost:3306/homeportal?user=root&password=
+
+## Assigned the user id of Ferndale admin
+ferndale_userId = 1
+
+## Csv file path where the system will read the csv file
+csvFilesPath = E:/
+
+## Csv file name that will be appended
+csvFileNameSuffix = _WaterReading.csv
+
+## Cut off Date
+cutOffDate = 20
+
+## connectionURL=jdbc:mysql://localhost:3306/homeportal?user=root&password=root

@@ -1,0 +1,202 @@
+/* login skin */
+
+div#login-wrapper {
+	background-color: #fafafa;
+	background-image: url('required.getContextPath()/images/headerbg.png');
+	background-repeat: repeat-x;
+	border: 1px solid #A2100E;
+	padding: 30 10 10 10;
+	width: 350px;
+}
+div#login-wrapper a {
+	color: #A2100E;
+	text-decoration: none;
+}
+div#login-wrapper-c input {
+	font-size: 11px;
+	width: 200px;
+}
+div#login-wrapper-c {
+	font-weight: bold;
+}
+div#login-wrapper img {
+	margin: 0 0 20 0;
+}
+div.l-text {
+	float: left;
+	width: 50px !important;
+}
+
+/* Structure */
+div.main-width {
+	width: 850px;
+}
+
+table.search-bar {
+	width: 100%;
+}
+td.searchbg {
+	background-image: url('../images/searchbarbg.png');
+	background-repeat: repeat-x;
+	padding: 3 0 0 0;
+	vertical-align: top;
+	width: 400px;
+}
+td.searchbg input {
+	font-size: 11px;
+	height: 18px;
+	width: 120px;
+}
+td.searchbg input.button {
+	width: auto;
+}
+table#header {
+	background-image: url('../images/headerbg.png');
+	background-repeat: repeat-x;
+	color: #A2100E;
+	font-size: 13px;
+	font-weight: bold;
+	height: 83px;
+	width: 100%;
+}
+table#logo {
+	height: 47px;
+	width: 1115px;
+}
+
+div#navigation {
+	background-image: url('images/navbg.png');
+	border: 1px solid #777;
+	border-left: 0px;
+	border-right: 0px;
+}
+div#navigation a {
+	border-left: 1px solid #fff;
+	color: #000;
+	display: block;
+	text-decoration: none;
+	text-align: center;
+	width: 140px;
+}
+div#navigation a:hover {
+	background-image: url('images/navbg_over.png');
+}
+div#nav-shadow {
+	background-image: url('images/nav_shadow.png');
+	line-height: 21px;
+	margin: 0 0 10 0;
+}
+
+a#logout {
+	background-color: #A2100E;
+	border: 1px solid #555;
+	color: #fff;
+	font-weight: bold;
+	padding: 0 5 0 5;
+	margin: 0 0 0 170;
+	text-decoration: none;
+	
+}
+
+div#navigation td {
+	border: 1px solid #777;
+	border-top: 0px;
+	border-bottom: 0px;
+	line-height: 28px;
+}
+div#contents {
+
+}
+
+/* header style */
+div#contents h1 {
+	border-bottom: 1px solid #A2100E;
+	color: #A2100E;
+	font-size: 15px;
+	margin: 20 0 20 0;
+}
+
+/* grid style */
+div#contents table {
+	width: 100%;
+}
+div#contents table input {
+	width: auto;
+}
+div#contents td {
+	border: 1px solid #FBC9C8;
+	padding: 2px;
+}
+div#contents tr.header {
+	background-color: #A2100E;
+	color: #fff;
+	font-weight: bold;
+}
+div#contents td.first-col {
+	width: auto;
+}
+div#contents td.second-col {
+	width: 200px;
+}
+div#contents td.control-col {
+	width: 20px;
+}
+
+/* content controls */
+
+div#contents div.r-text {
+	color: #000;
+	float: left !important;
+	font-size: 11px !important;
+	font-weight: bold;
+	width: 135px;
+}
+div#contents-text {
+	color: #777;
+	font-size: 9px;	
+	width: 550px;
+}
+
+div.contents-text-col {
+	float: left;
+	margin: 0 0 0 50;
+}
+div.contents-text-col select {
+	width: 150px;
+}
+div.contents-text-col input {
+	width: 150px; 
+}
+
+div#contents-text div {
+	float: left;
+	width: auto;
+}
+div#contents-text input {
+	font-size: 11px;
+	width: 120px;
+}
+div#contents-text select {
+	font-size: 11px;
+}
+div#contents-text input.button {
+	width: auto;
+}
+div#contents-text textarea {
+	font-family: Arial;
+	font-size: 11px;
+	width: 200px;
+}
+
+input.button {
+	width: auto;
+	font-size: 11px;
+}
+
+div#footer {
+	padding: 30 0 30 0;
+}
+div#footer a {
+	color: #A2100E;
+	text-decoration: none;
+}

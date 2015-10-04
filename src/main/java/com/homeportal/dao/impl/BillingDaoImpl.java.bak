@@ -1,0 +1,281 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.homeportal.dao.impl;
+
+import com.homeportal.bean.BillingBean;
+import com.homeportal.dao.IBillingDao;
+import java.util.List;
+import javax.annotation.Resource;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.transform.Transformers;
+import org.springframework.stereotype.Repository;
+
+/**
+ *
+ * @author Peter
+ */
+@Repository
+public class BillingDaoImpl implements IBillingDao {
+
+    @Resource(name = "sessionFactory")
+    private SessionFactory sessionFactory;
+
+    public List<BillingBean> viewBillingByPortal(int userId) {
+        Session session = sessionFactory.getCurrentSession();
+        String sql = "(select jo.id as id, a.user_id as userId, jo.request_id as requestId,jo.order_type_id as orderTypeId , " +
+                "(select Concat(o.firstname, ' ' , o.lastname) from owner o where o.user_id = a.user_id UNION select Concat(o.firstname, ' ' , o.lastname) from leesee o where o.user_id = a.user_id) as payeeName,'' as reference, description,'' as postedDate,'' as requestedDate, a.amount, IFNULL(a.paid_amount,0.0) as paidAmount, TRUNCATE((a.amount - IFNULL(a.paid_amount,0.0)),2) as balance from adjustments a join job_orders jo on a.id = jo.request_id where a.user_id = '"+userId+"' and jo.order_type_id = 5) "
+                + "UNION \n"
+                + "(select jo.id as id,ar.user_id as userId,jo.request_id as requestId,jo.order_type_id as orderTypeId,"
+                + "(select Concat(o.firstname, ' ' , o.lastname) from owner o where o.user_id = ar.user_id UNION select Concat(o.firstname, ' ' , o.lastname) from leesee o where o.user_id = ar.user_id) as payeeName,"
+                + "concat(a.code,'-',LPAD(ABS(jo.id),12,'0')) as reference,a.description,ar.requested_date as requestedDate,"
+                + "DATE_FORMAT(ar.updated_At,'%m/%d/%Y') as postedDate,TRUNCATE(ar.total_cost,2) as amount, TRUNCATE(ar.paid_amount,2) as paidAmount, "
+                + "TRUNCATE((ar.total_cost - ar.paid_amount),2) as balance from amenities_request ar join amenity a on a.id = ar.amenity_id "
+                + "join job_orders jo on jo.request_id = ar.id where ar.status = 'Done' \n"
+                + "and jo.order_type_id = 1 and jo.status in (0,1) and ar.user_id ='"+userId+"' order by ar.updated_at desc)\n"
+                + "UNION \n"
+                + "(select jo.id as id,ar.user_id as userId,jo.request_id as requestId,jo.order_type_id as orderTypeId,"
+                + "case when ar.user_id = 1 then ar.PayeeName else (select Concat(o.firstname, ' ' , o.lastname) from owner o where o.user_id = ar.user_id UNION select Concat(o.firstname, ' ' , o.lastname) from leesee o where o.user_id = ar.user_id) end as payeeName,"
+                + "concat(a.code,'-',LPAD(ABS(jo.id),12,'0')) as reference,"
+                + "CASE WHEN ar.misc_names != '' then Concat(a.DESCRIPTION, ' ' , Concat('-',' ',ar.misc_names)) else Concat(a.DESCRIPTION, CASE WHEN ar.remarks = '' then '' else Concat('-',ar.remarks) end) end  as description,"
+                + "ar.confirmed_date as requestedDate,DATE_FORMAT(ar.updated_At,'%m/%d/%Y') as postedDate\n"
+                + ",TRUNCATE(ar.total_cost,2) as amount, TRUNCATE(ar.paid_amount,2) as paidAmount, TRUNCATE((ar.total_cost - ar.paid_amount),2) as balance" 
+                + " from service_request ar join service a on a.id = ar.service_id join job_orders jo on jo.request_id = ar.id where ar.status = 'Done' \n"
+                + "and jo.order_type_id = 2 and jo.status in (0,1) and ar.user_id ='"+userId+"' order by ar.updated_at desc)"
+                
+                + " \n"
+                + "UNION \n"
+                +"(select jo.id as id, jo.user_id as userId, jo.request_id as requestId, jo.order_type_id as orderTypeId,"
+                + "(select Concat(o.firstname, ' ' , o.lastname) from owner o where o.user_id = jo.user_id UNION select Concat(o.firstname, ' ' , o.lastname) from leesee o where o.user_id = jo.user_id) as payeeName,"
+                + "'WATER READING' as reference,  Concat('Bill for the month of ',MONTHNAME(STR_TO_DATE(MONTH(wr.updated_At), '%m'))) as description, "
+                //+ "Concat('MONTH : ',MONTHNAME(STR_TO_DATE(MONTH(wr.updated_At), '%m')),' QUANTITY : ' ,wr.end_reading - wr.start_reading,' RATE : ' ,wr.amount/(wr.end_reading - wr.start_reading), ' PRES : ',wr.end_reading,' PREV : ',wr.start_reading) as description, "
+                + "DATE_FORMAT(wr.updated_At,'%m/%d/%Y') as requestedDate,DATE_FORMAT(wr.updated_At,'%m/%d/%Y') as postedDate,"
+                + "TRUNCATE(wr.amount,2) as amount,TRUNCATE(wr.paid_amount,2) as paidAmount,TRUNCATE(wr.amount - wr.paid_amount,2) as balance "
+                + "from job_orders jo, water_reading_history wr where wr.id = jo.request_Id and wr.status != 'Paid' and jo.status in (0,1) and jo.order_type_id = 3 "
+                + "and wr.billed_to = '"+userId+"')";
+                
+               
+                 
+         
+        
+        Query query = session.createSQLQuery(sql)
+                .addScalar("id")
+                .addScalar("userId")
+                .addScalar("requestId")
+                .addScalar("orderTypeId")
+                .addScalar("payeeName")
+                .addScalar("reference")
+                .addScalar("description")
+                .addScalar("requestedDate")
+                .addScalar("postedDate")
+                .addScalar("amount")
+                .addScalar("paidAmount")
+                .addScalar("balance")
+                .setResultTransformer(Transformers.aliasToBean(BillingBean.class));
+        return query.list();
+    }
+    
+    
+
+    public List<BillingBean> viewBillingByAdmin() {
+        Session session = sessionFactory.getCurrentSession();
+        String sql = "select Concat(h.addr_number, ' ', h.addr_street) as address, "
+                + "Concat(o.firstname, ' ' , o.lastname)as fullname,sum(jo.price) as amount "
+                + "from job_orders jo join amenities_request ar on ar.id = jo.request_id "
+                + "join amenity a on a.id = ar.amenity_id join owner o on o.user_id = ar.user_id "
+                + "join house h on h.id = jo.house_id group by ar.user_id";
+        Query query = session.createSQLQuery(sql)
+                .addScalar("address")
+                .addScalar("fullname")
+                .addScalar("amount")
+                .setResultTransformer(Transformers.aliasToBean(BillingBean.class));
+        return query.list();
+    }
+    
+    public List<BillingBean>  getPayeeDetails(int userId,int roleId) {
+        Session session = sessionFactory.getCurrentSession();
+        System.out.println("userId : " + userId + " roleId : " + roleId);
+        String sql = "";
+        String ownerSql = "select Concat(h.addr_number, ' ', h.addr_street) as payeeAddress, "
+                + "Concat(o.firstname, ' ' , o.lastname)as payeeName from "
+                + "house h join owner o on o.id = h.owner_id "
+                + "join users u on u.id = o.user_id where o.user_id = "+userId;
+        
+        String leesseSql = "select Concat(h.addr_number, ' ', h.addr_street) as payeeAddress, "
+                + "Concat(l.firstname, ' ' , l.lastname)as payeeName from "
+                + "house h join leesee l on l.house_id = h.id join "
+                + "users u on u.id = l.user_id where l.user_id = "+userId;
+        
+        if(roleId == 3)
+        {
+            sql = ownerSql;
+        }else
+        {
+            sql = leesseSql;
+        }
+        System.out.println("sql is : " + sql);
+        Query query = session.createSQLQuery(sql)
+                .addScalar("payeeAddress")
+                .addScalar("payeeName")
+                .setResultTransformer(Transformers.aliasToBean(BillingBean.class));
+        return query.list();
+    }
+    
+    public List<BillingBean> getRoleId(int userId) {
+        Session session = sessionFactory.getCurrentSession();
+        String sql = "select role_id as roleId from users where id ="+userId;
+        Query query = session.createSQLQuery(sql)
+                .addScalar("roleId")
+                .setResultTransformer(Transformers.aliasToBean(BillingBean.class));
+        return query.list();
+    }
+
+    public List<BillingBean> viewStatement(int userId) {
+        Session session = sessionFactory.getCurrentSession();
+        
+       String sql = "(select sh.id, Concat(o.firstname, '' , o.lastname,'_',h.id,'_',sh.report_name) as description, "
+               + " sh.report_name as postedDate from owner o join users u on u.id = o.user_id "
+               + " join statement_history sh on sh.user_id = o.user_id join house h on h.owner_id = o.id "
+               + " where o.user_id = "+userId+" order by sh.report_date DESC Limit 6) "
+               + " UNION "
+               + "(select sh.id, Concat(o.firstname, '' , o.lastname,'_',h.id,'_',sh.report_name) as description, "
+               + " sh.report_name as postedDate from leesee o join users u on u.id = o.user_id "
+               + " join statement_history sh on sh.user_id = o.user_id join house h on h.id = o.house_id "
+               + " where o.user_id = "+userId+" order by sh.report_date DESC Limit 6)"; 
+         Query query = session.createSQLQuery(sql)
+                .addScalar("id")
+                .addScalar("postedDate")
+                .addScalar("description")
+                .setResultTransformer(Transformers.aliasToBean(BillingBean.class));
+         
+        return query.list();
+    }
+
+    public List<BillingBean> viewORByAdmin(int userId,int orNumber, String postedDate) {
+        Session session = sessionFactory.getCurrentSession();
+        
+        String sql = "select ors.id as id, ors.or_number as orNumber, \n" +
+                    "DATE_FORMAT(ors.updated_At,'%m/%d/%Y') as postedDate ,\n" +
+                    "Concat(o.firstname, ' ' , o.lastname)as payeeName\n" +
+                    "from owner o join users u on u.id = o.user_id\n" +
+                    "join official_receipt ors on u.id = ors.user_id\n" +
+                    "where o.user_id != 1 and o.user_id = '"+userId+"' \n" +
+                    "OR DATE_FORMAT(ors.updated_At,'%m/%d/%Y') = '"+postedDate+"'\n" +
+                    "OR ors.or_number = '"+orNumber+"' group by ors.or_number\n"+
+                    "UNION\n"+
+                    "select ors.id as id,ors.or_number as orNumber, \n" +
+                    "DATE_FORMAT(ors.updated_At,'%m/%d/%Y') as postedDate ,\n" +
+                    "Concat(o.firstname, ' ' , o.lastname)as payeeName\n" +
+                    "from leesee o join users u on u.id = o.user_id\n" +
+                    "join official_receipt ors on u.id = ors.user_id\n" +
+                    "where o.user_id = '"+userId+"' \n" +
+                    "OR DATE_FORMAT(ors.updated_At,'%m/%d/%Y') = '"+postedDate+"'\n" +
+                    "OR ors.or_number = '"+orNumber+"' group by ors.or_number\n"+
+                    "UNION\n"+
+                    "select ors.id as id, ors.or_number as orNumber,"
+                    + "DATE_FORMAT(ors.updated_At,'%m/%d/%Y') as postedDate,"
+                    + "sr.payeeName from owner o join users u on u.id = o.user_id "
+                    + "join official_receipt ors on u.id = ors.user_id "
+                    + "join job_orders jo on jo.id = ors.job_order_id "
+                    + "join service_request sr on sr.id = jo.request_id where ors.user_id = 1 group by ors.or_number";
+        
+       
+        Query query = session.createSQLQuery(sql)
+                .addScalar("id")
+                .addScalar("orNumber")
+                .addScalar("postedDate")
+                .addScalar("payeeName")
+                .setResultTransformer(Transformers.aliasToBean(BillingBean.class));
+        return query.list();
+    }
+
+    public List<BillingBean> viewStatementByAdmin(int userId, String statementDate)
+    {
+        Session session = sessionFactory.getCurrentSession();
+        StringBuffer sb = new StringBuffer();
+        sb.append("select sh.id, Concat(o.firstname, ' ' , o.lastname)as payeeName,");
+        sb.append("Concat(o.firstname, '' , o.lastname,'_',h.id,'_',sh.report_name) as description, ");
+        sb.append("sh.report_name as postedDate ");
+        sb.append("from owner o join users u on u.id = o.user_id ");
+        sb.append("join statement_history sh on sh.user_id = o.user_id join house h on h.owner_id = o.id ");
+        sb.append("where ");
+        if(statementDate.equalsIgnoreCase("0") && userId == 0)
+        {
+            sb.append("o.user_id = '"+userId+"' or sh.report_name like '%"+statementDate+"%'");
+        }
+        if(!statementDate.equalsIgnoreCase("0"))
+        {
+            sb.append("sh.report_name like '%"+statementDate+"%'");
+        }
+        if(!statementDate.equalsIgnoreCase("0") && userId != 0)
+        {
+            sb.append(" and ");
+        }
+        if(userId != 0)
+        {
+            sb.append("o.user_id = '"+userId+"'");
+        }
+        sb.append("UNION ");
+        sb.append("select sh.id, Concat(o.firstname, ' ' , o.lastname)as payeeName,");
+        sb.append("Concat(o.firstname, '' , o.lastname,'_',h.id,'_',sh.report_name) as description, ");
+        sb.append("sh.report_name as postedDate ");
+        sb.append("from leesee o join users u on u.id = o.user_id ");
+        sb.append("join statement_history sh on sh.user_id = o.user_id join house h on h.id = o.house_id ");
+        sb.append("where ");
+        if(statementDate.equalsIgnoreCase("0") && userId == 0)
+        {
+            sb.append("o.user_id = '"+userId+"' or sh.report_name like '%"+statementDate+"%'");
+        }
+        if(!statementDate.equalsIgnoreCase("0"))
+        {
+            sb.append("sh.report_name like '%"+statementDate+"%'");
+        }
+        if(!statementDate.equalsIgnoreCase("0") && userId != 0)
+        {
+            sb.append(" and ");
+        }
+        if(userId != 0)
+        {
+            sb.append("o.user_id = '"+userId+"'");
+        }
+        
+        Query query = session.createSQLQuery(sb.toString())
+                .addScalar("id")
+                .addScalar("payeeName")
+                .addScalar("description")
+                .addScalar("postedDate")
+                
+                .setResultTransformer(Transformers.aliasToBean(BillingBean.class));
+        return query.list();
+    }
+
+    public List<BillingBean> viewOrByPortal(int userId) {
+        Session session = sessionFactory.getCurrentSession();
+        String sql = "select id, or_number as orNumber from official_receipt where user_id = "+userId+" group by or_number order by id desc Limit 10";
+        Query query = session.createSQLQuery(sql)
+                .addScalar("id")
+                .addScalar("orNumber")
+                .setResultTransformer(Transformers.aliasToBean(BillingBean.class));
+        return query.list();
+    }
+
+    public List<BillingBean> viewCollections(int userId) {
+        Session session = sessionFactory.getCurrentSession();
+        //String sql = "select sh.id, sh.report_name as postedDate,  concat('Collections for ',MONTHNAME(STR_TO_DATE(MONTH(report_date), '%m')),' ',YEAR(report_date)) as description from collections_history sh "
+                //+ " order by report_date DESC Limit 6";
+        
+        String sql = "select sh.id, sh.report_name as postedDate,  'Collection report' as description from collections_history sh "
+                + " order by report_date DESC Limit 6";
+        
+         Query query = session.createSQLQuery(sql)
+                .addScalar("id")
+                .addScalar("postedDate")
+                .addScalar("description")
+                .setResultTransformer(Transformers.aliasToBean(BillingBean.class));
+         
+        return query.list();
+    }
+}

@@ -1,0 +1,333 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.homeportal.dao.impl;
+
+/**
+ *
+ * @author PSP36488
+ */
+import com.homeportal.bean.ServiceBean;
+import com.homeportal.dao.IServiceRequestDAO;
+import com.homeportal.model.Service_Request;
+import com.homeportal.util.HomePortalUtil;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Resource;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.transform.Transformers;
+import org.springframework.stereotype.Repository;
+
+/**
+ *
+ * @author PSP36488
+ */
+@Repository
+public class ServiceRequestDaoImpl implements IServiceRequestDAO {
+
+    @Resource(name = "sessionFactory")
+    private SessionFactory sessionFactory;
+
+    public List<ServiceBean> getService_Requests(int id) {
+        Session session = sessionFactory.getCurrentSession();
+        String sql = "select ar.id as id, a.DESCRIPTION as des, "
+                + "ar.preferred_date as preferredDate, ar.confirmed_date as confirmedDate, "
+                + "concat(a.code,'-',LPAD(ABS(ar.id),12,'0')) as requestId,\n"
+                + "ar.preferred_time as preferredTime,ar.quantity as quantity,"
+                + "ar.STATUS,a.uom as uom from service_request ar join service a on a.ID = ar.SERVICE_ID where ar.USER_ID = " + id + " and ar.STATUS != 'Done' and ar.STATUS != 'Cancelled'  and ar.STATUS != 'Paid' order by ar.updated_At desc";
+        Query query = session.createSQLQuery(sql)
+                .addScalar("id")
+                .addScalar("des")
+                .addScalar("preferredDate")
+                .addScalar("confirmedDate")
+                .addScalar("requestId")
+                .addScalar("preferredTime")
+                .addScalar("quantity")
+                .addScalar("status")
+                .addScalar("uom")
+                .setResultTransformer(Transformers.aliasToBean(ServiceBean.class));
+
+        return query.list();
+    }
+    
+    public List<ServiceBean> getService_Requests() {
+        Session session = sessionFactory.getCurrentSession();
+
+         StringBuffer statusSb = new StringBuffer();
+         statusSb.append("in ('Confirmed','Re-Scheduled','Re-Schedule','New')");
+        
+         String sql = "(select ar.id as id, Concat(h.addr_number, ' ', h.addr_street) as address,\n"
+                + "concat(a.code,'-',LPAD(ABS(ar.id),12,'0')) as requestId,\n"
+                + "Concat(o.firstname, ' ' , o.lastname) as requestor,\n"
+                + "a.DESCRIPTION as des, ar.preferred_date as preferredDate, ar.basic_cost,ar.additional_cost, ar.total_cost,\n"
+                + "ar.confirmed_date as confirmedDate, ar.preferred_time as preferredTime, a.uom as uom, ar.STATUS,"
+                + "a.reg_value as regularPrice, a.excess_value as excessPrice,ar.quantity,a.max_regular as maxRegular,ar.remarks as remarks, ar.other_charges as otherCharges,ar.updated_At as updated\n"
+                + "from service_request ar join service a on a.ID = ar.SERVICE_ID join\n"
+                + "owner o on o.user_id = ar.user_id join house h on h.owner_id = o.id\n"
+                + "where ar.STATUS "+statusSb.toString()+")\n"
+                + "UNION\n"
+                + "(select ar.id as id, Concat(h.addr_number, ' ', h.addr_street) as address,\n"
+                + "concat(a.code,'-',LPAD(ABS(ar.id),12,'0')) as requestId,\n"
+                + "Concat(l.firstname, ' ' , l.lastname) as requestor,\n"
+                + "a.DESCRIPTION as des, ar.preferred_date as preferredDate, ar.basic_cost,ar.additional_cost, ar.total_cost,\n"
+                + "ar.confirmed_date as confirmedDate, ar.preferred_time as preferredTime, a.uom as uom, ar.STATUS,"
+                + "a.reg_value as regularPrice, a.excess_value as excessPrice,ar.quantity,a.max_regular as maxRegular,ar.remarks as remarks, ar.other_charges as otherCharges,ar.updated_At as updated\n"
+                + "from service_request ar join service a on a.ID = ar.SERVICE_ID join\n"
+                + "leesee l on l.user_id = ar.user_id join house h on h.id = l.house_id\n"
+                + "where ar.STATUS "+statusSb.toString()+") order by updated desc";
+         
+         Query query = session.createSQLQuery(sql)
+                .addScalar("id")
+                .addScalar("address")
+                .addScalar("requestId")
+                .addScalar("des")
+                .addScalar("preferredDate")
+                .addScalar("confirmedDate")
+                .addScalar("preferredTime")
+                .addScalar("basic_cost")
+                .addScalar("additional_cost")
+                .addScalar("total_cost")
+                .addScalar("uom")
+                .addScalar("status")
+                .addScalar("requestor")
+                .addScalar("regularPrice")
+                .addScalar("excessPrice")
+                .addScalar("quantity")
+                .addScalar("maxRegular")
+                .addScalar("remarks")
+                .addScalar("otherCharges")
+                .setResultTransformer(Transformers.aliasToBean(ServiceBean.class));
+         
+         return query.list();
+    }
+
+    public List<ServiceBean> getService_RequestsByAdmin(int userId, String status,String requestedDate, int serviceId) {
+        
+        System.out.println("went to getService_RequestsByAdmin list ......");
+        
+        Session session = sessionFactory.getCurrentSession();
+        
+         StringBuffer statusSb = new StringBuffer();
+        
+        if(status.equalsIgnoreCase("Select All")){
+            statusSb.append("in ('Confirmed','Re-Scheduled','Re-Schedule','New')");
+        }else{
+            statusSb.append("='"+status+"'");
+        }
+        
+        StringBuffer userSb = new StringBuffer();
+        if(userId == 0){
+            userSb.append("");
+        }else{
+            userSb.append("and ar.user_id = "+userId);
+        }
+        
+        StringBuffer sbRequestedDate = new StringBuffer();
+        if(requestedDate.length() == 0){
+        
+        }else{
+           sbRequestedDate.append(" and ar.confirmed_date='"+requestedDate+"'");
+        }
+        
+        StringBuffer sbAmenityId = new StringBuffer();
+        if(serviceId == 0){
+        
+        }else{
+            sbAmenityId.append(" and a.id="+serviceId);
+        }
+        
+        String sql = "(select ar.id as id, Concat(h.addr_number, ' ', h.addr_street) as address,\n"
+                + "concat(a.code,'-',LPAD(ABS(ar.id),12,'0')) as requestId,\n"
+                + "Concat(o.firstname, ' ' , o.lastname) as requestor,\n"
+                + "CASE WHEN ar.misc_names != '' then Concat(a.DESCRIPTION, ' ' , Concat('-',' ',ar.misc_names)) else a.Description end  as des, \n"
+                + "ar.preferred_date as preferredDate, ar.basic_cost,ar.additional_cost, ar.total_cost,\n"
+                + "ar.confirmed_date as confirmedDate, ar.preferred_time as preferredTime, a.uom as uom, ar.STATUS,"
+                + "a.reg_value as regularPrice, a.excess_value as excessPrice,ar.quantity,a.max_regular as maxRegular,ar.remarks as remarks,ar.payeeName as payeeName, ar.other_charges as otherCharges,ar.updated_At as updated\n"
+                + "from service_request ar join service a on a.ID = ar.SERVICE_ID join\n"
+                + "owner o on o.user_id = ar.user_id join house h on h.owner_id = o.id\n"
+                + "where ar.STATUS "+statusSb.toString()+" "+ userSb.toString() +" "+sbRequestedDate+" "+sbAmenityId+")\n"
+                + "UNION\n"
+                + "(select ar.id as id, Concat(h.addr_number, ' ', h.addr_street) as address,\n"
+                + "concat(a.code,'-',LPAD(ABS(ar.id),12,'0')) as requestId,\n"
+                + "Concat(l.firstname, ' ' , l.lastname) as requestor,\n"
+                + "a.DESCRIPTION as des, ar.preferred_date as preferredDate, ar.basic_cost,ar.additional_cost, ar.total_cost,\n"
+                + "ar.confirmed_date as confirmedDate, ar.preferred_time as preferredTime, a.uom as uom, ar.STATUS,"
+                + "a.reg_value as regularPrice, a.excess_value as excessPrice,ar.quantity,a.max_regular as maxRegular,ar.remarks as remarks,ar.payeeName as payeeName, ar.other_charges as otherCharges,ar.updated_At as updated\n"
+                + "from service_request ar join service a on a.ID = ar.SERVICE_ID join\n"
+                + "leesee l on l.user_id = ar.user_id join house h on h.id = l.house_id\n"
+                + "where ar.STATUS "+statusSb.toString()+" "+ userSb.toString() +" "+sbRequestedDate+" "+sbAmenityId+") order by updated desc";
+        //String sql = "select ar.id as id, h.addr_number || ' ' || h.addr_street as address, a.DESCRIPTION as des, ar.preferred_date as preferredDate, ar.confirmed_date as confirmedDate, ar.preferred_time as preferredTime, ar.confirmed_time as confirmedTime,ar.STATUS, ar.VERIFIED from SERVICE_REQUEST ar join SERVICES a on a.ID = ar.SERVICE_ID join Owner o on o.user_id = ar.user_id join House h on h.owner_id = o.id where ar.STATUS in ('Confirmed','Re-Scheduled') order by CREATED desc";
+        
+        Query query = session.createSQLQuery(sql)
+                .addScalar("id")
+                .addScalar("address")
+                .addScalar("requestId")
+                .addScalar("des")
+                .addScalar("preferredDate")
+                .addScalar("confirmedDate")
+                .addScalar("preferredTime")
+                .addScalar("basic_cost")
+                .addScalar("additional_cost")
+                .addScalar("total_cost")
+                .addScalar("uom")
+                .addScalar("status")
+                .addScalar("requestor")
+                .addScalar("regularPrice")
+                .addScalar("excessPrice")
+                .addScalar("quantity")
+                .addScalar("maxRegular")
+                .addScalar("remarks")
+                .addScalar("payeeName")
+                .addScalar("otherCharges")
+                .setResultTransformer(Transformers.aliasToBean(ServiceBean.class));
+        
+        return query.list();
+    }
+
+    public void deleteService_Requests(int id) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Service_Request saveService_Requests(Service_Request sr) {
+        Session session = sessionFactory.getCurrentSession();
+        session.save(sr);
+        return sr;
+    }
+
+    public Service_Request updateService_Request(Service_Request sr) {
+        Session session = sessionFactory.getCurrentSession();
+        session.update(sr);
+        return sr;
+    }
+
+    public Service_Request updateService_RequestViaPortal(Service_Request ar,  String uom) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+
+            StringBuffer sb = new StringBuffer();
+            sb.append("update service_request ar set ar.status = :status,\n");
+            sb.append("ar.preferred_date=:preferred_date,\n");
+            if(uom.equalsIgnoreCase("pc")){
+            sb.append("ar.quantity=:quantity,\n");
+            }
+            if(uom.equalsIgnoreCase("hr")){
+            sb.append("ar.preferred_time=:preferred_time,\n");
+            }
+            if(uom.equalsIgnoreCase("day")){
+            sb.append("ar.quantity=:quantity,\n"); 
+            sb.append("ar.preferred_time=:preferred_time,\n");
+            }
+            if(uom.equalsIgnoreCase("hph")){
+            sb.append("ar.quantity=:quantity,\n"); 
+            sb.append("ar.preferred_time=:preferred_time\n");
+            }
+            sb.append("ar.updated_At=Now() WHERE ar.id=:id");
+            
+            System.out.println("sql is --------------- " + sb.toString());
+            Query query = session.createSQLQuery(sb.toString());
+            
+            query.setInteger("id", ar.getId());
+            query.setString("status", ar.getStatus());
+            query.setString("preferred_date", HomePortalUtil.getparsedDate(ar.getPreferredDate()));
+            if(uom.equalsIgnoreCase("pc")){
+            query.setInteger("quantity", ar.getQuantity());
+            }
+            if(uom.equalsIgnoreCase("hr")){
+            query.setString("preferred_time", ar.getPreferredTime());
+            }
+            if(uom.equalsIgnoreCase("day")){
+            query.setString("preferred_time", ar.getPreferredTime());
+            query.setInteger("quantity", 1);
+            }
+            if(uom.equalsIgnoreCase("hph")){
+            query.setString("preferred_time", ar.getPreferredTime());
+            query.setInteger("quantity", ar.getQuantity());
+            }
+            //query.setDate("updatedAt", new Date());// test
+            int rowCount = query.executeUpdate();
+
+
+        } catch (Exception ex) {
+            System.out.println("Error in update admin is : " + ex.getCause());
+        }
+
+        return ar;
+    }
+
+    public Service_Request updateService_RequestViaAdmin(Service_Request ar) {
+        System.out.println("updateAmenities_RequestViaAdmin status is : " + ar.getStatus());
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            StringBuffer sb = new StringBuffer();
+            if(!ar.getStatus().equalsIgnoreCase("")){
+                sb.append("ar.status = :status , ");
+            }
+            String sql = "update service_request ar set "
+                    + sb.toString()
+                    + "ar.confirmed_date=:confirmed_date, "
+                    + "ar.quantity=:quantity, "
+                    + "ar.basic_cost=:basic_cost, "
+                    + "ar.additional_cost=:additional_cost, "
+                    + "ar.other_charges=:other_charges, "
+                    + "ar.remarks=:remarks, "
+                    + "ar.total_cost=:total_cost, "
+                    + "ar.updated_At=Now() "
+                    + "WHERE ar.id = :id";
+            Query query = session.createSQLQuery(sql);
+            query.setInteger("id", ar.getId());
+            if(!ar.getStatus().equalsIgnoreCase("")){
+             query.setString("status", ar.getStatus());
+             }
+            query.setString("confirmed_date", ar.getConfirmedDate());
+            query.setInteger("quantity", ar.getQuantity());
+            query.setDouble("basic_cost", ar.getBasic_cost());
+            query.setDouble("additional_cost", ar.getAdditional_cost());
+            query.setDouble("other_charges", ar.getOtherCharges());
+            query.setString("remarks", ar.getRemarks());
+            query.setDouble("total_cost", ar.getTotal_cost());
+            //query.setDate("updated_At", new Date());
+            int rowCount = query.executeUpdate();
+
+        } catch (Exception ex) {
+            Logger.getLogger(ServiceRequestDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return ar;
+    }
+
+    public Double updatePaidAmount(Double paidAmount, int requestId, Double amount) {
+        Double unPaidAmount = 0.0;
+        Session session = sessionFactory.getCurrentSession();
+        StringBuffer sb = new StringBuffer();
+        sb.append("update service_request ar set ar.paid_amount =:paidAmount,ar.updated_At=Now() ");
+        if(amount == 0){
+        sb.append(" , ar.status = 'Paid' ");
+        }
+         sb.append("where ar.id=:requestId");
+        Query query = session.createSQLQuery(sb.toString());
+        query.setDouble("paidAmount", paidAmount);
+        query.setInteger("requestId", requestId);
+        int rowCount = query.executeUpdate();
+        return unPaidAmount;
+    }
+    
+    public Double updatePaidAmountWaterReading(Double paidAmount, int requestId, Double amount) {
+        Double unPaidAmount = 0.0;
+        Session session = sessionFactory.getCurrentSession();
+        StringBuffer sb = new StringBuffer();
+        sb.append("update water_reading_history wr set wr.paid_amount =:paidAmount ");
+        if(amount == 0){
+        sb.append(" , wr.status = 'Paid' ");
+        }
+        sb.append("where wr.id=:requestId");
+        System.out.println("sb " + sb.toString());
+        Query query = session.createSQLQuery(sb.toString());
+        query.setDouble("paidAmount", paidAmount);
+        query.setInteger("requestId", requestId);
+        int rowCount = query.executeUpdate();
+        return unPaidAmount;
+    }
+}

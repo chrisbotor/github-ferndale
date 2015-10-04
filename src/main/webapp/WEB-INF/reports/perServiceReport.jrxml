@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="monthlyCollectionReport" pageWidth="600" pageHeight="595" orientation="Landscape" columnWidth="560" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="657fdc6b-4145-40f8-86c3-c11846772f44">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="date" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="date1" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select count(ord.description) as count,
+ord.description as description,
+sum(o.amount) as amount
+from
+official_receipt o, official_receipt_header orh, official_receipt_details ord,job_orders jo
+where
+o.or_number = orh.or_number
+and ord.header_id = orh.id
+and o.job_order_id = jo.id
+and date_format(o.created_at,"%m/%d/%Y") >= $P{date}
+and date_format(o.created_at,"%m/%d/%Y") <= $P{date1}
+group by
+ord.description]]>
+	</queryString>
+	<field name="count" class="java.lang.Long"/>
+	<field name="description" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="amount" class="java.lang.Double">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<variable name="total_amount" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="88" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="823e3046-d280-4d85-9233-89675ffbd060" x="0" y="0" width="444" height="31"/>
+				<textElement>
+					<font fontName="Arial" size="24" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ferndale per Service Collection Report]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="0c77d2c4-edd6-4a68-a4b3-23d29dc925b4" x="0" y="65" width="66" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="14"/>
+				</textElement>
+				<text><![CDATA[Date :]]></text>
+			</staticText>
+			<textField pattern="MMMMM dd, yyyy">
+				<reportElement uuid="ec008124-747e-4590-8dae-0c1eb1a94bb8" x="55" y="65" width="167" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="e9b0f445-971b-41a7-b81d-7b0c830fac88" x="0" y="31" width="66" height="31"/>
+				<textElement>
+					<font fontName="Arial" size="24" isBold="true"/>
+				</textElement>
+				<text><![CDATA[from ]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="5a0eaf66-cdcb-449d-935f-eb87e9908f53" x="66" y="42" width="100" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{date}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="9618a7a8-7092-4450-b10a-ada06d4033c6" x="182" y="31" width="66" height="31"/>
+				<textElement>
+					<font fontName="Arial" size="24" isBold="true"/>
+				</textElement>
+				<text><![CDATA[to]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="804bf5c4-c799-4f00-884b-6f50f27f4420" x="263" y="42" width="100" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{date1}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="46" splitType="Stretch">
+			<line>
+				<reportElement uuid="5319f970-6a15-45b5-866c-956910aa2a77" x="0" y="12" width="560" height="1"/>
+			</line>
+			<line>
+				<reportElement uuid="a4461237-b212-4426-9f52-549a4942a2ce" x="0" y="44" width="560" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="eb8a810a-0909-4d7d-9b8d-f5a58e4e12c9" x="0" y="13" width="145" height="20"/>
+				<textElement/>
+				<text><![CDATA[# of Availed Service/Amenity]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="140e97bd-104c-4715-97db-cebaa39fb09f" x="162" y="12" width="201" height="20"/>
+				<textElement/>
+				<text><![CDATA[Description]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="e12296bb-7f86-4239-b765-d0aa796b899f" x="378" y="12" width="100" height="20"/>
+				<textElement/>
+				<text><![CDATA[Amount]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="23" splitType="Stretch">
+			<textField>
+				<reportElement uuid="8d1a19b9-ceee-40eb-bd98-0be300955e72" x="40" y="0" width="71" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{count}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="23915bea-d53b-4343-81e7-2f14f67bc1d4" x="162" y="3" width="201" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="5d0e792b-e3ca-45a3-8f3f-98bccd9dde36" x="378" y="3" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{amount}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="42" splitType="Stretch">
+			<line>
+				<reportElement uuid="b6b48f57-a623-4fc8-960e-83e4835ce9a3" x="0" y="0" width="560" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="20325f1b-4c5b-47fc-892e-326401df4b3f" x="318" y="7" width="45" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="14"/>
+				</textElement>
+				<text><![CDATA[Total : ]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="6b76b532-1354-42fa-b888-de7ff9913a2b" x="378" y="7" width="100" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_amount}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>
