@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="monthlyCollectionReport" pageWidth="600" pageHeight="595" orientation="Landscape" columnWidth="560" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="657fdc6b-4145-40f8-86c3-c11846772f44">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="date" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select date_format(created_at,"%Y-%m-%d") as date, sum(amount) from official_receipt where date_format(created_at,"%m/%Y") = $P{date} and status = 'T' group by date_format(created_at,"%Y-%m-%d") order by created_at asc]]>
+	</queryString>
+	<field name="date" class="java.lang.String"/>
+	<field name="sum(amount)" class="java.lang.Double"/>
+	<variable name="total_amount" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{sum(amount)}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="55" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="823e3046-d280-4d85-9233-89675ffbd060" x="0" y="0" width="444" height="31"/>
+				<textElement>
+					<font fontName="Arial" size="24" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ferndale Monthly Collection Report]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="0c77d2c4-edd6-4a68-a4b3-23d29dc925b4" x="0" y="31" width="66" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="14"/>
+				</textElement>
+				<text><![CDATA[Date :]]></text>
+			</staticText>
+			<textField pattern="MMMMM dd, yyyy">
+				<reportElement uuid="ec008124-747e-4590-8dae-0c1eb1a94bb8" x="55" y="31" width="167" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="46" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="50cf29d4-57f9-4f2d-8190-8f2234cbcc1e" x="21" y="19" width="45" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="14"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="4afe2a41-1ebc-4660-b036-f8905c120262" x="187" y="19" width="61" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="14"/>
+				</textElement>
+				<text><![CDATA[Amount]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="5319f970-6a15-45b5-866c-956910aa2a77" x="0" y="12" width="560" height="1"/>
+			</line>
+			<line>
+				<reportElement uuid="a4461237-b212-4426-9f52-549a4942a2ce" x="0" y="44" width="560" height="1"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="23" splitType="Stretch">
+			<textField pattern="#,##0.00 php" isBlankWhenNull="true">
+				<reportElement uuid="8326ba4d-cd90-4ff7-8529-d0dbe27f1946" x="187" y="0" width="100" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sum(amount)}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="3958fb31-02c0-4cce-b85e-7b2d1b229b8c" x="21" y="1" width="100" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{date}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="42" splitType="Stretch">
+			<line>
+				<reportElement uuid="b6b48f57-a623-4fc8-960e-83e4835ce9a3" x="0" y="0" width="560" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="20325f1b-4c5b-47fc-892e-326401df4b3f" x="318" y="7" width="45" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="14"/>
+				</textElement>
+				<text><![CDATA[Total : ]]></text>
+			</staticText>
+			<textField pattern="#,##0.00 php" isBlankWhenNull="true">
+				<reportElement uuid="16b227fb-8ec6-4d89-9e17-f377abc7d565" x="378" y="7" width="182" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_amount}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

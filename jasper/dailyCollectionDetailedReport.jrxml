@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="dailyCollectionReport" pageWidth="600" pageHeight="595" orientation="Landscape" columnWidth="560" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="657fdc6b-4145-40f8-86c3-c11846772f44">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="date" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select orcpt.or_number, orcptdetails.description, orcpt.amount, orcptheader.payee_name, orcptheader.payee_address,
+orcptheader.bank_name,orcptheader.cheque_number
+from
+official_receipt orcpt, official_receipt_header orcptheader, official_receipt_details orcptdetails
+where
+date_format(orcpt.created_at,"%m/%d/%Y") = $P{date}
+and orcpt.or_number = orcptheader.or_number
+and orcptheader.id = orcptdetails.header_id
+and orcpt.status = 'T'
+and orcptdetails.ref_num = orcpt.job_order_id]]>
+	</queryString>
+	<field name="or_number" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="description" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="amount" class="java.lang.Double">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="payee_name" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="payee_address" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="bank_name" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="cheque_number" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<variable name="total" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="121" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="823e3046-d280-4d85-9233-89675ffbd060" x="0" y="0" width="508" height="31"/>
+				<textElement>
+					<font fontName="Arial" size="24" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ferndale Daily Collection Detailed Report]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="0c77d2c4-edd6-4a68-a4b3-23d29dc925b4" x="0" y="31" width="66" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="14"/>
+				</textElement>
+				<text><![CDATA[Date :]]></text>
+			</staticText>
+			<textField pattern="MMMMM dd, yyyy">
+				<reportElement uuid="ec008124-747e-4590-8dae-0c1eb1a94bb8" x="55" y="31" width="167" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="2115afe9-9ffe-465b-acb8-3d5bd6d52682" x="0" y="55" width="560" height="1"/>
+			</line>
+			<textField>
+				<reportElement uuid="404c751d-bb38-4bc1-beea-e098de414d09" x="0" y="70" width="100" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{date}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="9866b71b-06c0-4a2a-b70a-6280bd46a72c" x="0" y="97" width="66" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<text><![CDATA[OR Number ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="93825a16-c9e4-4fd9-90ea-9cf2156813dd" x="77" y="97" width="66" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<text><![CDATA[Bank Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="d47e51e5-b60f-42aa-859b-49b2dd7fa3d2" x="170" y="97" width="88" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<text><![CDATA[Cheque Number]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="5794953d-bcc2-4d8a-8f3c-370cb507b887" x="472" y="100" width="88" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<text><![CDATA[Amount]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="5e153252-c1db-480c-981d-abaa8d799a2f" x="0" y="90" width="560" height="1"/>
+			</line>
+			<line>
+				<reportElement uuid="1a0911de-0698-4cd6-ae26-9f82c3e412bf" x="0" y="120" width="560" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="b208c955-f0f0-4577-be24-783d5e41dc15" x="269" y="97" width="100" height="20"/>
+				<textElement/>
+				<text><![CDATA[Payee Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="be186ec1-27c7-43d0-a6ab-8b2391c0d644" x="372" y="97" width="100" height="20"/>
+				<textElement/>
+				<text><![CDATA[Description]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField pattern="#,##0.00 Php" isBlankWhenNull="true">
+				<reportElement uuid="8326ba4d-cd90-4ff7-8529-d0dbe27f1946" x="472" y="0" width="88" height="20"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{amount}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="470ebe70-b95e-4ccb-ae7f-4670d747222b" x="0" y="0" width="89" height="20"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{or_number}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="9a5643dd-aeb1-46a2-a68c-327039a1bff8" x="77" y="0" width="100" height="20"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bank_name}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="e191d218-6df0-48b2-aee6-fcf36cf86348" x="170" y="0" width="88" height="20"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cheque_number}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="ab1cf0af-802a-4bd6-88af-99204b4b8791" x="269" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{payee_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="222ca121-448e-4a98-b9e7-e25d596ca9fb" x="372" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="26" splitType="Stretch">
+			<line>
+				<reportElement uuid="e0aa9e24-a2f3-44d8-a0a8-19318bc49f44" x="0" y="3" width="560" height="1"/>
+			</line>
+			<textField evaluationTime="Report" pattern="#,###.00 Php" isBlankWhenNull="true">
+				<reportElement uuid="6a8961eb-59f4-4b9e-a6c9-4e3caf2e344a" x="444" y="6" width="100" height="20"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="e2f444d1-9287-4b2e-8964-65081ce9afb1" x="406" y="6" width="66" height="20"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL :]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>
